@@ -34,6 +34,47 @@ Where two items conflict, the one listed first is the desired behavior.
 
 ## Issues
 
+- Pre-next-cut: Updates to CICD script flags (do next)
+	- ID: 2026101911150100
+	- Type: Enhancement
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261019-111500
+	- Opened by: t00mietum
+	- Related IDs: 2026101911150104
+	- Requirements:
+		- Rename `--ci` to `--gate`.
+		- `--quick`:
+			- Runs whatever linting, validation, and testing steps are very quick.
+			- Cross-compiles whatever is fast. E.g. maybe skip slow arm64.
+			- Skips anything requiring an external host.
+		- No flags by default does everything.
+		- The other existing flags can stay.
+
+- Pre-next-cut: Builds clean up stale artifacts and side effects
+	- ID: 2026101911150102
+	- Type: Enhancement
+	- Status: Queued
+	- Priority|Severity: Avg
+	- Opened: 20261019-111500
+	- Opened by: t00mietum
+	- Requirements:
+		- Verify or ensure that builds clean up *stale* artifacts and side effects when they're done: caches, container cruft, tmp files, etc.
+
+- Pre-next-cut: CICD `--leakcheck` and `--no-leakcheck`
+	- ID: 2026101911150104
+	- Type: Enhancement
+	- Status: Queued
+	- Priority|Severity: Avg
+	- Opened: 20261019-111500
+	- Opened by: t00mietum
+	- Parent ID: 2026101714415242
+	- Related IDs: 2026101911150100
+	- Requirements:
+		- CICD has both `--leakcheck` and `--no-leakcheck`.
+			- `--leakcheck` is useful to add back in for `--quick`.
+			- `--no-leakcheck` is useful to exclude from the default, or with `--quiet`.
+
 - Pre-next-cut: The core set of CLI tools we settled on goes in Tukzedo-Linux, "underneath" LXQtukz.
 	- ID: 2026101609000004
 	- Type: Task
