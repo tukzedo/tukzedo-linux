@@ -75,6 +75,86 @@ Where two items conflict, the one listed first is the desired behavior.
 			- `--leakcheck` is useful to add back in for `--quick`.
 			- `--no-leakcheck` is useful to exclude from the default, or with `--quiet`.
 
+- CICD reset: containers
+	- ID: 2026102416284793
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Related IDs: 2026102416284801
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- There's no pipeline yet. The test harnesses and shellcheck run in a pinned Debian 13 image from a recipe in the repo, with what the namespace tests need to run inside it.
+		- A missing docker falls back to the host with one line, and never fails a run. `--no-container` runs on the host on purpose.
+		- Nothing in a run touches the live system. The boot and login checks stay by hand on a test box.
+
+- CICD reset: container cleanup
+	- ID: 2026102416284794
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Prereq IDs: 2026102416284793
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- Every container, image, and volume gets `dev.project=tukzedo-linux` and `dev.run=<run folder name>`, and containers are named `tukzedo-linux-<run folder name>-<step>`.
+		- Containers run with `--rm`, unless `--keep-temp` was passed. The run's containers are removed by label at its end, on failure and Ctrl+C too.
+		- The project's dangling images go, and older tags once a newer one has passed, keeping the current tag and the one before it. Then `docker builder prune -f --filter until=168h`.
+		- Nothing without the project's label is touched. The end of the run says what it removed and about what that freed.
+
+- CICD reset: CPU and priority
+	- ID: 2026102416284795
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- Half the logical CPUs, or a quarter when the 1-minute load is over half the CPU count, checked at the start and before each step. Worked out once, and passed to anything that runs in parallel, such as `xargs -P` for shellcheck.
+		- Everything runs under `nice -n 19`, plus `ionice -c 3`. Containers get `--cpus` and `--cpu-shares 256`, and `nice` inside.
+
+- CICD reset: standard flags
+	- ID: 2026102416284796
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- It overrides 2026101911150100 and 2026101911150104, which are on the `dev` branch's backlog only. The first renames `--ci` to `--gate`, where `--gate` is now another name for `--backlog-run-quick`, and `--ci` for `--merge-gate`.
+		- `cicd.bash` takes the shared flags: none for the default run under about an hour, `--quick`, `--long` with `--slow` as another name, `--leakcheck`, `--no-leakcheck`, `--backlog-run-quick [<area>...]`, `--backlog-run-full`, `--merge-gate`, `--no-container`, `--no-remote`, `--no-sync`, `--keep-temp`, `--list`, `--help`, `--quiet`, and `--message`.
+		- The backlog and merge gate runs never dogfood, publish, commit, push, install, sync, rewrite a tracked file, or prompt.
+		- A pre-push hook runs `--merge-gate` on a push to `main` only. A push to `dev` or a feature branch isn't gated, and a docs-only push to `main` skips it, with the docs paths in one place the hook reads.
+
+- CICD reset: step output
+	- ID: 2026102416284797
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- Each step prints the shared lines: a 79 character rule, `[ YYYYmmDD-HHMMSS.NN: Step 1 of 4; Starting Lint ]`, its output, then `PASS Lint` or `FAIL Lint` in the same form.
+		- Steps turned off aren't counted, and the first section lists them with the flag or reason.
+
+- CICD reset: test IDs
+	- ID: 2026102416284798
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: High
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- Every test case in the harnesses gets a unique ID, from when it was first committed: whole minutes since 2000-01-01 UTC, in lower-case Crockford base 32. 2 that come out the same take the next free minute, and an ID never changes.
+		- The run prints one line per case, such as `PASS decp8 empty input round-trips`, or `FAIL` or `SKIP`.
+		- `Test case` rows in the backlog name the IDs beside the case names.
+
 - Pre-next-cut: The core set of CLI tools we settled on goes in Tukzedo-Linux, "underneath" LXQtukz.
 	- ID: 2026101609000004
 	- Type: Task
@@ -134,6 +214,46 @@ Where two items conflict, the one listed first is the desired behavior.
 			- ASan's allocator hides the heap from glibc's own stats, such as `mallinfo2`. A test that reads them should exit as skipped under ASan, not pass.
 	- Note: The only C is `source/poc_remap-fhs.c`, a FUSE proof of concept.
 
+- CICD reset: temp files and safe removal
+	- ID: 2026102416284799
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: Avg
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- The test harnesses make their folders under `/tmp`. Each run's folder is `<HOST_TEMP>/tukzedo-linux/<YYYYmmDD-HHMMSS>_<NNN>/` instead, made with a plain `mkdir` and a counter, with `TMPDIR`, `TEMP`, and `TMP` pointed into it.
+		- A trap removes it at the end, on failure and Ctrl+C too, through a copy of the shared guard in place of the name checks there now. `--keep-temp` keeps it and prints its path.
+		- Each run writes `run.pid` there, and removes the project's own folders older than 2 days whose process is gone.
+		- The 5 `rm -rf` calls in the tests go through the guard. The file list is in the private notes.
+
+- CICD reset: version line
+	- ID: 2026102416284800
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: Avg
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- The `tkz_*` scripts that take `--version` print `<name> v<version> build <build>`, then the copyright line. Now they print `<name> version <version>`.
+		- The build number is the commit's time in minutes since 2000, in lower-case Crockford base 32, stamped when the scripts are installed. A non-release build adds its date after it, in the viewer's time zone.
+
+- CICD reset: CICD process gaps
+	- ID: 2026102416284801
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: Avg
+	- Opened: 20261024-162847
+	- Opened by: t00mietum
+	- Requirements:
+		- Sweeping override, 2026-10-24: this supersedes any earlier decision on this project that conflicts with it.
+		- It's related to 2026101714415242, 2026101714415244, and 2026101911150102, which are on the `dev` branch's backlog only.
+		- A small `cicd.bash` per the shared CICD rules: remote sync first, shellcheck over every tracked script, the test harnesses, and cleanup.
+		- Lint output rotated into `cicd/artifacts/lint/`, with a `--check` that prints only what's new, and shellcheck pinned in one place.
+		- The watchdog's regression tests are kept outside the repo. They move into `tests/`.
+
 ## Old format
 
 ### Bugs
@@ -142,7 +262,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: Critical
 	- Opened: 20261012-083536
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: `rd.neednet=1` in the build guide's command line, there since 3486f1e. Seen on the laptop's first boot.
 	- Cause: with `rd.neednet=1`, dracut holds its initqueue until the network is up, for up to 2 minutes. The LVM volumes only activate from the initqueue. The stock ZFS import isn't ordered after them, so it ran right after unlock, found no pool, and the mount failed once the wait ran out. With a cable in, it was a race won by about a second.
 	- Confirmed: with the link down, the new import step logged the root LV as not active yet at 9s, and imported the pool. dracut's own LVM scan started at 122s.
@@ -212,7 +332,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: Critical
 	- Opened: 20261012-090724
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: 162edaa. No earlier review. Confirmed: the login helper, run against a stubbed `zfs` in that state, refused the login.
 	- Cause: the temp dataset gets the automount user property when it is created, keyed to the new password. The login password changes only at the end. An rsync error, a busy unmount or `~/tmp` being a file stops it in between.
 	- Probable fix: set the property after the final rename, and add an EXIT trap that rolls back.
@@ -287,7 +407,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: High
 	- Opened: 20261012-090724
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: e932ac2, unmerged. No earlier review. Confirmed in Debian's 90zfs source (2.3.9): `zfs_force=1` adds `-f` to the initrd's `zpool import -aN` scan.
 	- An external pool, or a disk passed through from another running host, gets force-imported at boot. That can corrupt it.
 	- Against: the recorded "keep every import layer" decision lists `zfs_force=1` as a layer. Dropping it reverses that. Correcting the docs does not.
@@ -792,10 +912,10 @@ Where two items conflict, the one listed first is the desired behavior.
 
 	- The ID is the local time to the hundredth of a second. Opened is when it was written down, which may differ. (Use a keyboard macro and possibly something like project 'zuid' to generate.)
 
-	- Status values meaning: Testing means the fix is in and checks are running or still to run. Waiting on signoff means automated testing passed. Moot means something else changed that made it irrelevant. Canceled means it still applies but was decided against. Waiting for testing means the fix is in and waits on a long CI run or an outside test host. Can't reproduce means a real attempt to reproduce it failed.
+	- Status values meaning: Testing means the fix is in and checks are running or still to run. Waiting on UAT means automated testing passed and a person has to try it. Moot means something else changed that made it irrelevant. Canceled means it still applies but was decided against. Waiting on automated testing means the fix is in and waits on a long CI run or an outside test host, with no person needed. Can't reproduce means a real attempt to reproduce it failed.
 
 	- As issues are worked, and statuses change, place them in correct sorting order within the list:
-		- First by status: Waiting for answers, Waiting on signoff, Testing, Waiting for testing, Can't reproduce, Stalled, Started, Queued, Done, Deferred, Canceled, Moot
+		- First by status: Waiting for answers, Waiting on UAT, Testing, Waiting on automated testing, Can't reproduce, Stalled, Started, Queued, Done, Deferred, Canceled, Moot
 		- Then by severity|priority: Critical, High, Avg, Low
 		- Then by type: Bugs, [not bugs together]
 
@@ -806,7 +926,7 @@ Template:
 - Title
 	- ID: YYYYmmDDHHMMSSNN
 	- Type: [Bug|Feature|Enhancement|Task]
-	- Status: [Queued|Waiting for answers|Waiting on signoff|Waiting for testing|Started|Testing|Stalled|Can't reproduce|Moot|Canceled|Deferred|Done]
+	- Status: [Queued|Waiting for answers|Waiting on UAT|Waiting on automated testing|Started|Testing|Stalled|Can't reproduce|Moot|Canceled|Deferred|Done]
 	- Needs local test suite run?:
 	- Needs external testing:
 	- Priority [Feature|Enhancement] | Severity [Bug]: [Critical|High|Avg|Low]
