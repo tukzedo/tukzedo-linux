@@ -51,7 +51,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: Critical
 	- Opened: 20261012-083536
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: `rd.neednet=1` in the build guide's command line, there since 3486f1e. Seen on the laptop's first boot.
 	- Cause: with `rd.neednet=1`, dracut holds its initqueue until the network is up, for up to 2 minutes. The LVM volumes only activate from the initqueue. The stock ZFS import isn't ordered after them, so it ran right after unlock, found no pool, and the mount failed once the wait ran out. With a cable in, it was a race won by about a second.
 	- Confirmed: with the link down, the new import step logged the root LV as not active yet at 9s, and imported the pool. dracut's own LVM scan started at 122s.
@@ -121,7 +121,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: Critical
 	- Opened: 20261012-090724
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: 162edaa. No earlier review. Confirmed: the login helper, run against a stubbed `zfs` in that state, refused the login.
 	- Cause: the temp dataset gets the automount user property when it is created, keyed to the new password. The login password changes only at the end. An rsync error, a busy unmount or `~/tmp` being a file stops it in between.
 	- Probable fix: set the property after the final rename, and add an EXIT trap that rolls back.
@@ -196,7 +196,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Type: Bug
 	- Severity: High
 	- Opened: 20261012-090724
-	- Status: Waiting for testing
+	- Status: Waiting on automated testing
 	- Origin: e932ac2, unmerged. No earlier review. Confirmed in Debian's 90zfs source (2.3.9): `zfs_force=1` adds `-f` to the initrd's `zpool import -aN` scan.
 	- An external pool, or a disk passed through from another running host, gets force-imported at boot. That can corrupt it.
 	- Against: the recorded "keep every import layer" decision lists `zfs_force=1` as a layer. Dropping it reverses that. Correcting the docs does not.
@@ -701,10 +701,10 @@ Where two items conflict, the one listed first is the desired behavior.
 
 	- The ID is the local time to the hundredth of a second. Opened is when it was written down, which may differ. (Use a keyboard macro and possibly something like project 'zuid' to generate.)
 
-	- Status values meaning: Testing means the fix is in and checks are running or still to run. Waiting on signoff means automated testing passed. Moot means something else changed that made it irrelevant. Canceled means it still applies but was decided against. Waiting for testing means the fix is in and waits on a long CI run or an outside test host. Can't reproduce means a real attempt to reproduce it failed.
+	- Status values meaning: Testing means the fix is in and checks are running or still to run. Waiting on UAT means automated testing passed and a person has to try it. Moot means something else changed that made it irrelevant. Canceled means it still applies but was decided against. Waiting on automated testing means the fix is in and waits on a long CI run or an outside test host, with no person needed. Can't reproduce means a real attempt to reproduce it failed.
 
 	- As issues are worked, and statuses change, place them in correct sorting order within the list:
-		- First by status: Waiting for answers, Waiting on signoff, Testing, Waiting for testing, Can't reproduce, Stalled, Started, Queued, Done, Deferred, Canceled, Moot
+		- First by status: Waiting for answers, Waiting on UAT, Testing, Waiting on automated testing, Can't reproduce, Stalled, Started, Queued, Done, Deferred, Canceled, Moot
 		- Then by severity|priority: Critical, High, Avg, Low
 		- Then by type: Bugs, [not bugs together]
 
@@ -715,7 +715,7 @@ Template:
 - Title
 	- ID: YYYYmmDDHHMMSSNN
 	- Type: [Bug|Feature|Enhancement|Task]
-	- Status: [Queued|Waiting for answers|Waiting on signoff|Waiting for testing|Started|Testing|Stalled|Can't reproduce|Moot|Canceled|Deferred|Done]
+	- Status: [Queued|Waiting for answers|Waiting on UAT|Waiting on automated testing|Started|Testing|Stalled|Can't reproduce|Moot|Canceled|Deferred|Done]
 	- Needs local test suite run?:
 	- Needs external testing:
 	- Priority [Feature|Enhancement] | Severity [Bug]: [Critical|High|Avg|Low]
