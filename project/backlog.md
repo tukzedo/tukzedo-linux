@@ -254,6 +254,20 @@ Where two items conflict, the one listed first is the desired behavior.
 		- Lint output rotated into `cicd/artifacts/lint/`, with a `--check` that prints only what's new, and shellcheck pinned in one place.
 		- The watchdog's regression tests are kept outside the repo. They move into `tests/`.
 
+- tukzmon in the NixOS edition
+	- ID: 2026102813062962
+	- Type: Task
+	- Status: Queued
+	- Priority|Severity: Low
+	- Opened: 20261028-130629
+	- Opened by: t00mietum
+	- Requirements:
+		- The edition's flake takes `tukzmon.url = "github:tukzedo/tukzmon";` as an input, with `tukzmon.inputs.nixpkgs.follows = "nixpkgs";`.
+		- The system's modules get `tukzmon.nixosModules.default`, with `programs.tukzmon.enable = true;`.
+		- After a rebuild, tukzmon is in the panel's Add New Items list, and its Properties opens `tukzmon-settings`.
+		- The edition has no flake yet, so this waits for it. Only XFCE has a tukzmon plugin so far.
+		- tukzmon's Nix package and module are its backlog item 2026102621053725.
+
 ## Old format
 
 ### Bugs
