@@ -861,6 +861,7 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Nemo is GTK, so its theme has to match each personality's Qt look.
 	- nemo-anywhere has no desktop of its own. Desktop icons belong to the new desktop layer.
 	- captain-nemo, a Rust clone of nemo-anywhere, is planned to replace it later.
+	- It replaces pcmanfm-qt for tukzedo. LXQtukz opens the default app for folders on Super+E, so nemo-anywhere has to be the default for `inode/directory`. (20261109)
 
 - Make silkterm the default terminal.
 	- Type: Feature
