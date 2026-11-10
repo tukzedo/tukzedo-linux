@@ -178,6 +178,17 @@ Where two items conflict, the one listed first is the desired behavior.
 	- Related IDs: 2026101609000001, 2026101609000002
 	- Note: FYI. The tool list itself isn't in this item yet.
 
+- Tukzedo-Linux, LXQtukz, and tukzdesk should use shcl for config files (latest is v3.0.0-beta1). Named *.shcl.
+	- ID: 2026111015271653
+	- Type: Task
+	- Status: Queued
+	- Opened: 20261110-152716
+	- Opened by: t00mietum
+	- Requirements:
+		- Config files our own code reads or writes. A file whose format another program sets, such as LXQt's `.conf` files, `gtk-3.0/settings.ini` or the SDDM theme, stays as it is.
+	- Note: here that's `/etc/tukzedo/tunables.conf` and `/etc/tukzedo/usb-unlock.conf`, plus `zfs-pools.conf` on branch `zfs-import`. LXQtukz has its own item.
+	- Needs more thought: the initrd reads these files, so it needs a shcl reader that dracut can include. `tkz_zfs-import` may use only bash builtins and a short list of tools, so its reader would have to be plain bash.
+
 - Leak, memory, and static checks in CI/CD, for all code
 	- ID: 2026101714415242
 	- Type: Task
